@@ -17,11 +17,23 @@ never stored anywhere.
 
 ## Status
 
-Early development. The four wizard steps work end to end (`src/steps/`, wired in
-`src/App.svelte`) on top of the pure pipeline stages in `src/pipeline/` and the Hevy modules in
-`src/hevy/` (client, account connection, importer). Not built yet: creating a custom exercise
-from the matching step, and the planned ways for the mapping to grow. The first real import ran
-on 2026-10-30 (one workout), and what Hevy stored matched the built payload field by field.
+First version live since 2026-10-30 at `https://rafaelmmedeiros.github.io/macro-hevy/`, with a
+README and the MIT license. That day the maintainer imported their whole reference export
+(9 workouts, 2026-10-19 to 2026-10-29) into their real Hevy account. Every workout matched the
+payload built from the CSV field by field, with no duplicates, and re-running shows all 9 as
+already in Hevy.
+
+Not built yet, roughly in order of usefulness:
+
+- Creating a custom exercise from the matching step (`POST /v1/exercise_templates`, see
+  Exercise matching).
+- The planned ways for the mapping to grow (see "How the mapping grows").
+- Offered to the maintainer but not decided: `customTitle` entries pointing at two more of
+  their custom exercises, "Overhead Triceps Extension (Machine)" for
+  `Pin-Loaded Machine Overhead Triceps Extension` and "Bent Over Row Machine (Plate)" for
+  `Neutral Grip Plate-Loaded Machine Row` (they weren't sure the second is the same machine).
+- No linter, no formatter, and no component tests. The Svelte screens were checked by hand by
+  the maintainer.
 
 ## Commands
 
@@ -37,7 +49,9 @@ on 2026-10-30 (one workout), and what Hevy stored matched the built payload fiel
   builds and publishes to `https://rafaelmmedeiros.github.io/macro-hevy/`. A failing test blocks
   the deploy. The repo's Pages source must be set to "GitHub Actions".
 
-There is no linter or formatter yet.
+On Windows, don't run `npm ci` while a dev server is running: the server locks Rolldown's native
+`.node` binding, so `npm ci` fails halfway after deleting most of `node_modules`. `npm install`
+restores it without touching the locked file.
 
 ## Architecture
 
@@ -54,6 +68,11 @@ There is no linter or formatter yet.
   through a single Hevy client module, `src/hevy/client.ts`, whose tests use a fake `fetch`.
 - **Stages live in `src/pipeline/`**, each with its `*.test.ts` next to it. They report problems
   as `Issue`s (`src/pipeline/issue.ts`) instead of throwing, so the preview can show them.
+- **Hevy modules live in `src/hevy/`:** `client.ts` (all HTTP), `account.ts` (key check, then
+  loading templates and workouts), `importer.ts` (planning and running writes), `types.ts`.
+- **UI:** `src/App.svelte` holds the wizard state (loaded CSV, account, the user's exercise
+  picks), so going back never loses work. Each step is a component in `src/steps/`, and shared
+  pieces are in `src/components/`. Components only call pipeline functions and the Hevy modules.
 - **There is no undo.** The API has no `DELETE` for workouts, so a bad import can only be fixed
   by hand in the Hevy app. `PUT /v1/workouts/{workoutId}` can overwrite a workout, but nothing
   can remove one. Every write must come after a preview the user has confirmed.
@@ -121,21 +140,21 @@ code, and that content has to reproduce the encoding quirks above.
   the short one is used and the preview shows a warning.
 - **Privacy:** `is_private` is the user's choice in the review step. Backfilled workouts can
   flood followers' feeds, so don't hard-code it.
-- **Start time:** the CSV only has a date. During import the user sets one time of day for
-  all workouts, or a time for each workout. The time is read in the browser's timezone, and
-  `end_time` is `start_time + Workout Duration`. Since the time is the user's choice and can
-  differ between imports, deduplication must never rely on timestamps.
+- **Start time:** the CSV only has a date. During import the user sets one time of day for all
+  workouts (noon by default), or a time for each workout. The time is read in the browser's
+  timezone, and `end_time` is `start_time + Workout Duration`. Since the time is the user's
+  choice and can differ between imports, deduplication must never rely on timestamps.
 
 ## User flow
 
-A step-by-step wizard:
+A step-by-step wizard. The app shows four steps, because review and import share one screen.
 
 1. **Import CSV.** The user drops the file. It is parsed, and a summary shows the number of
    workouts, the date range, and any warnings.
 2. **API key.** The user pastes the key. It is checked with `GET /v1/user/info`, and the
    account is shown.
 3. **Match exercises.** Exercises that resolve automatically are listed. Each unresolved one
-   needs a pick or a new custom exercise.
+   needs a pick, or later a new custom exercise (not built yet).
 4. **Review.** Each workout is marked as new, already imported, or conflict. The user chooses
    which workouts to import, sets the start time (one for all or one per workout), and chooses
    whether the imported workouts are private.
@@ -222,11 +241,12 @@ as `79D0BB3A`. Custom IDs are UUIDs.
 
 The set fields that are valid depend on the template's `type`. Build each set to fit its target
 template (the table is in `src/pipeline/payload.ts`). Values the template doesn't record are left
-out with a warning. A type the tool doesn't know gets every value, also with a warning. `GET` returns `weight_reps`, `reps_only`, `bodyweight_weighted`, `bodyweight_assisted`,
-`duration`, `distance_duration`, `short_distance_weight`, `floors_duration` and
-`steps_duration`. `POST` uses other names for some of them (`CustomExerciseType` in the spec:
-`bodyweight_reps`, `bodyweight_assisted_reps`, `weight_duration`, …), so don't send a type read
-from `GET` back to `POST` without mapping it.
+out with a warning. A type the tool doesn't know gets every value, also with a warning. `GET`
+returns `weight_reps`, `reps_only`, `bodyweight_weighted`, `bodyweight_assisted`, `duration`,
+`distance_duration`, `short_distance_weight`, `floors_duration` and `steps_duration`. `POST`
+uses other names for some of them (`CustomExerciseType` in the spec: `bodyweight_reps`,
+`bodyweight_assisted_reps`, `weight_duration`, …), so don't send a type read from `GET` back to
+`POST` without mapping it.
 
 ## Hevy API
 
@@ -252,4 +272,5 @@ Don't treat these as settled:
   leaves the exercise unresolved, and an ID that names another exercise there triggers the
   title-mismatch warning in the preview.
 - **What type is the ID that `POST /v1/exercise_templates` returns?** The spec says integer, but
-  custom template IDs are UUIDs. The client accepts both. Check on the first real creation.
+  custom template IDs are UUIDs. The client accepts both. Still unchecked: the maintainer's custom
+  templates so far were created in the Hevy app, not through the API.
