@@ -15,14 +15,17 @@ create, and no server in between.
 
 ## What you need
 
-- A workout export from MacroFactor, as a CSV file.
+- MacroFactor's workout log export, a CSV file. In MacroFactor, go to **Data Export → Granular
+  Export**, scroll down to **Logs**, choose how many days to include, and tap **Export Workout
+  Log**. Other MacroFactor exports won't work.
 - Hevy Pro, which the Hevy API requires, and an API key from
   [hevy.com/settings?developer](https://hevy.com/settings?developer).
 
 ## How it works
 
-1. **Import CSV.** Drop the export. You see how many workouts and sets it has, their dates, and
-   any rows that couldn't be read.
+1. **Import CSV.** Drop the file from **Export Workout Log** (Data Export → Granular Export →
+   Logs). You see how many workouts and sets it has, their dates, and any rows that couldn't be
+   read.
 2. **Connect Hevy.** Paste your API key. The app checks it and loads your exercises and recent
    workouts.
 3. **Match exercises.** Each MacroFactor exercise goes to a Hevy exercise. Most are matched

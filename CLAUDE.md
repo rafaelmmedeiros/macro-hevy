@@ -57,6 +57,11 @@ There is no linter or formatter yet.
 
 ## MacroFactor export format
 
+The only accepted file is the workout log: in MacroFactor, **Data Export → Granular Export**,
+scroll down to **Logs**, choose the number of days, and tap **Export Workout Log**. Other
+MacroFactor exports don't have these columns. The README and step 1 of the app give the same
+instructions.
+
 Columns: `Date, Workout Duration, Workout, Exercise, Exercise Base Weight (kg), Set Type,
 Weight (kg), Reps, RIR, Duration, Distance short (m), Distance long (km)`.
 

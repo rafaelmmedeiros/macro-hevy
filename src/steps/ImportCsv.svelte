@@ -46,10 +46,12 @@
 
 <section>
   <h2>Import your MacroFactor export</h2>
-  <p>
-    Export your workouts from MacroFactor as a CSV file and drop it here. The file is read in your
-    browser and never uploaded anywhere.
-  </p>
+  <ol class="how">
+    <li>In MacroFactor, go to <strong>Data Export → Granular Export</strong>.</li>
+    <li>Scroll down to <strong>Logs</strong>, choose how many days to include, and tap <strong>Export Workout Log</strong>.</li>
+    <li>Drop that CSV here. Other MacroFactor exports won't work.</li>
+  </ol>
+  <p class="note">The file is read in your browser and never uploaded anywhere.</p>
 
   <label class="drop" class:dragging {ondragover} ondragleave={() => (dragging = false)} {ondrop}>
     <input type="file" accept=".csv,text/csv" {onchange} />
@@ -67,6 +69,11 @@
       </p>
     {/if}
     <IssueList issues={csv.issues} />
+    {#if csv.workouts.length === 0}
+      <p class="note">
+        No workouts found. Make sure this is the file from <strong>Export Workout Log</strong>, as described above.
+      </p>
+    {/if}
     <div class="actions">
       <button disabled={csv.workouts.length === 0} onclick={onnext}>Next</button>
     </div>
@@ -74,6 +81,15 @@
 </section>
 
 <style>
+  .how {
+    padding-left: 1.25rem;
+  }
+
+  .note {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
   .drop {
     position: relative;
     display: block;
