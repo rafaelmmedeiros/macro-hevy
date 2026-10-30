@@ -98,6 +98,9 @@ reasoning behind them.
 
 ## Contributing
 
+Pull requests are welcome, whether they add mapping entries, fix bugs, or improve the app. Run
+`npm test` and `npm run check` before opening one.
+
 Mapping entries are the most useful contribution. Each one maps a MacroFactor name to a Hevy
 built-in exercise:
 
