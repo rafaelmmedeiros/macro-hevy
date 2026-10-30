@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { exerciseNames, groupWorkouts } from './group'
+import { dateRange, exerciseNames, groupWorkouts } from './group'
 import type { SetRow } from './parse'
 
 let nextLine = 2
@@ -115,5 +115,21 @@ describe('exerciseNames', () => {
     ])
 
     expect(exerciseNames(workouts)).toEqual(['Barbell Bench Press', 'Cable Fly', 'Barbell Row'])
+  })
+})
+
+describe('dateRange', () => {
+  it('returns the earliest and latest dates, whatever the file order', () => {
+    const workouts = groupWorkouts([
+      row({ date: '2026-01-07' }),
+      row({ date: '2026-01-05', workout: 'Pull' }),
+      row({ date: '2026-01-09', workout: 'Legs' }),
+    ])
+
+    expect(dateRange(workouts)).toEqual({ first: '2026-01-05', last: '2026-01-09' })
+  })
+
+  it('returns null for no workouts', () => {
+    expect(dateRange([])).toBeNull()
   })
 })

@@ -127,7 +127,12 @@ A step-by-step wizard:
 4. **Review.** Each workout is marked as new, already imported, or conflict. The user chooses
    which workouts to import, sets the start time (one for all or one per workout), and chooses
    whether the imported workouts are private.
-5. **Import.** A progress view, then a result for each workout.
+5. **Import.** Each workout has its own import button, and there is one to import every selected
+   workout at once. A progress view, then a result for each workout. Importing a single workout
+   first is the safe way to try the tool: if it looks wrong in Hevy, delete it in the app and
+   import it again, since a deleted workout takes its marker with it and shows up as new.
+   Reload the workouts from Hevy before every write, so statuses reflect deletions and earlier
+   imports.
 
 Step 2 has to come before steps 3 and 4: matching needs the account's custom templates, and
 the review step needs the workouts already in Hevy.

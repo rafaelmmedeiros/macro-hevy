@@ -1,6 +1,15 @@
 :root {
   --text: #1f2328;
+  --muted: #59636e;
   --bg: #ffffff;
+  --surface: #f6f8fa;
+  --border: #d1d9e0;
+  --accent: #0969da;
+  --accent-text: #ffffff;
+  --error: #cf222e;
+  --warning: #9a6700;
+  --radius: 8px;
+  --mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
   font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light dark;
@@ -11,10 +20,72 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #e6edf3;
+    --muted: #9198a1;
     --bg: #0d1117;
+    --surface: #151b23;
+    --border: #3d444d;
+    --accent: #4493f8;
+    --accent-text: #0d1117;
+    --error: #f85149;
+    --warning: #d29922;
   }
 }
 
 body {
   margin: 0;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+input {
+  font: inherit;
+  border-radius: var(--radius);
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  cursor: pointer;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.summary {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
 }

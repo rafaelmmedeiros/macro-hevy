@@ -54,6 +54,13 @@ export function groupWorkouts(rows: SetRow[]): Workout[] {
   return workouts
 }
 
+/** The earliest and latest workout dates, or null when there are no workouts. */
+export function dateRange(workouts: readonly Workout[]): { first: string; last: string } | null {
+  if (workouts.length === 0) return null
+  const dates = workouts.map((w) => w.date).sort()
+  return { first: dates[0], last: dates[dates.length - 1] }
+}
+
 /** Every distinct exercise name across the workouts, in order of first appearance. */
 export function exerciseNames(workouts: readonly Workout[]): string[] {
   return [...new Set(workouts.flatMap((w) => w.exercises.map((e) => e.name)))]
