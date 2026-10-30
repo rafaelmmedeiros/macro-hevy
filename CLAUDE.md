@@ -47,7 +47,8 @@ Not built yet, roughly in order of usefulness:
 - `npm run build`: production build in `dist/`, with the base path `/macro-hevy/` for GitHub Pages.
 - **Deploy:** every push to `main` runs `.github/workflows/deploy.yml`, which tests, type-checks,
   builds and publishes to `https://rafaelmmedeiros.github.io/macro-hevy/`. A failing test blocks
-  the deploy. The repo's Pages source must be set to "GitHub Actions".
+  the deploy. The repo's Pages source must be set to "GitHub Actions". Permissions are per job:
+  the build job, which runs npm packages, can only read; only the deploy job can publish.
 
 On Windows, don't run `npm ci` while a dev server is running: the server locks Rolldown's native
 `.node` binding, so `npm ci` fails halfway after deleting most of `node_modules`. `npm install`
@@ -61,7 +62,17 @@ restores it without touching the locked file.
   If Hevy ever tightens CORS, this decision has to be revisited. Don't add a server to work
   around it without asking first.
 - **The API key lives in memory only.** Never write it to `localStorage`, URLs or logs, and
-  never send it anywhere except `api.hevyapp.com`.
+  never send it anywhere except `api.hevyapp.com`. Its input is `type="text"` masked with CSS,
+  not `type="password"`: the maintainer confirmed that browsers offered to save it as a password
+  once the form went away.
+- **The built page carries a Content Security Policy** (`vite.config.ts`, build only, since the
+  dev server needs inline styles and a WebSocket): its own script and styles only, and
+  `connect-src https://api.hevyapp.com`. The browser then enforces where the key can go. Any new
+  external resource must be added there. Never add third-party scripts (analytics included):
+  this is the page where people type their key. A `<meta>` CSP can't set `frame-ancestors`, so
+  `src/main.ts` refuses to mount inside a frame. Checked on 2026-10-30 in headless Edge: the app
+  connects to Hevy under the policy, a fetch elsewhere is blocked, and a framed copy only shows
+  the refusal.
 - **The pipeline is made of pure stages:** parse CSV → group into workouts → resolve exercises
   → build Hevy payloads → diff against what is already in Hevy → execute. Every stage before
   execute is pure and can be tested offline against fixture CSVs. All network access goes

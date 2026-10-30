@@ -58,13 +58,22 @@
     </div>
   {:else}
     <form {onsubmit}>
+      <!-- Not type="password": browsers offer to save a password field once its form goes away,
+           and the key must never be saved. CSS masks it instead, and the data attributes tell
+           password manager extensions to leave it alone. -->
       <input
-        type="password"
+        type="text"
+        class="masked"
         bind:value={apiKey}
         aria-label="Hevy API key"
         placeholder="1a2b3c4d-1a2b-1a2b-1a2b-1a2b3c4d5e6f"
         autocomplete="off"
+        autocapitalize="off"
         spellcheck="false"
+        data-1p-ignore
+        data-lpignore="true"
+        data-bwignore
+        data-form-type="other"
         disabled={busy}
       />
       <button type="submit" disabled={busy || apiKey.trim() === ''}>{busy ? 'Checking…' : 'Connect'}</button>
@@ -87,6 +96,10 @@
     flex: 1 1 18rem;
     min-width: 0;
     font-family: var(--mono);
+  }
+
+  .masked:not(:placeholder-shown) {
+    -webkit-text-security: disc;
   }
 
   .error {

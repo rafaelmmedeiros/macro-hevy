@@ -12,8 +12,13 @@ create, and no server in between.
 
 - The CSV is read in your browser and never uploaded anywhere.
 - Your Hevy API key stays in the page's memory and is sent only to `api.hevyapp.com`. It is
-  never saved, and it is gone when you close the tab.
-- There is no backend. The app is a static page that talks to the Hevy API directly.
+  never saved, and it is gone when you close the tab. The key field isn't a password field, so
+  browsers don't offer to save it either.
+- The page's Content Security Policy lets it run only its own code and connect only to
+  `api.hevyapp.com`, so your browser itself blocks the key from going anywhere else. The page
+  loads no third-party scripts, analytics or fonts.
+- There is no backend. The app is a static page that talks to the Hevy API directly. It refuses
+  to run inside another site's frame.
 
 ## What you need
 
