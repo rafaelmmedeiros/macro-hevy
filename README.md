@@ -2,6 +2,8 @@
 
 Import your MacroFactor workout history into Hevy, straight from your browser.
 
+**Use it at [rafaelmmedeiros.github.io/macro-hevy](https://rafaelmmedeiros.github.io/macro-hevy/).**
+
 Drop the CSV that MacroFactor exports, paste your Hevy API key, check how each exercise is
 matched, review the workouts, and import them. There is nothing to install, no account to
 create, and no server in between.
