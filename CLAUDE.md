@@ -84,7 +84,8 @@ code, and that content has to reproduce the encoding quirks above.
 
 - **`weight_kg` = `Weight` + `Exercise Base Weight`**, with an empty base counting as 0.
   MacroFactor logs the base weight of a machine or sled separately (45° Leg Press: 53.5 kg).
-  Hevy has no base-weight concept, so the total goes in.
+  Hevy has no base-weight concept, so the total goes in. It's rounded to the gram to clear
+  floating-point noise.
 - **Two-dumbbell exercises are exported as the total of both dumbbells** (Seated Dumbbell
   Overhead Press at 28 kg means 2 × 14 kg). Hevy follows the same convention, so the number
   goes in as it is, with no doubling or halving.
@@ -102,8 +103,11 @@ code, and that content has to reproduce the encoding quirks above.
   other result, including RIR ≥ 5, becomes `null`. Don't round to the nearest allowed value.
 - **Set types:** `Standard Set` → `normal`, `Warm-Up Set` → `warmup`. An unknown type becomes
   `normal` and shows a warning in the preview. Don't infer `failure` from RIR 0.
-- **Distance and time:** `Duration` → `duration_seconds`. `Distance short (m)` and
-  `Distance long (km)` × 1000 → `distance_meters`, which is an integer.
+- **Distance and time:** `Duration` → `duration_seconds`. `Distance short (m)` or
+  `Distance long (km)` × 1000 → `distance_meters`, both integers. If a set has both distances,
+  the short one is used and the preview shows a warning.
+- **Privacy:** `is_private` is the user's choice in the review step. Backfilled workouts can
+  flood followers' feeds, so don't hard-code it.
 - **Start time:** the CSV only has a date. During import the user sets one time of day for
   all workouts, or a time for each workout. The time is read in the browser's timezone, and
   `end_time` is `start_time + Workout Duration`. Since the time is the user's choice and can
@@ -120,7 +124,8 @@ A step-by-step wizard:
 3. **Match exercises.** Exercises that resolve automatically are listed. Each unresolved one
    needs a pick or a new custom exercise.
 4. **Review.** Each workout is marked as new, already imported, or conflict. The user chooses
-   which workouts to import and sets the start time, either one for all or one per workout.
+   which workouts to import, sets the start time (one for all or one per workout), and chooses
+   whether the imported workouts are private.
 5. **Import.** A progress view, then a result for each workout.
 
 Step 2 has to come before steps 3 and 4: matching needs the account's custom templates, and
@@ -132,10 +137,12 @@ Users will re-import overlapping exports, and that must never create duplicates.
 
 - **Each workout gets a stable import key** built from date, workout name, and that name's
   ordinal on that date. The key must not depend on set content, so editing a workout in
-  MacroFactor later doesn't turn it into a "new" one. The key goes in the description's
-  `Imported from MacroFactor` line. The exact format gets decided with the payload stage. If
-  someone deletes that line in Hevy, the workout counts as unmarked, and the conflict rule below
-  still catches it.
+  MacroFactor later doesn't turn it into a "new" one. The key goes in the description's marker
+  line, `Imported from MacroFactor · 2026-10-19 · e76e6e49 · 1`: date, 32-bit FNV-1a of the
+  UTF-8 workout name as 8 hex digits, ordinal (`src/pipeline/marker.ts`). **Never change this
+  format once workouts have been imported with it**, or earlier imports stop being recognized.
+  If someone deletes that line in Hevy, the workout counts as unmarked, and the conflict rule
+  below still catches it.
 - **Before any write, collect existing markers.** Page through `GET /v1/workouts`, which
   returns newest first with at most 10 per page, until `start_time` is older than the
   earliest date in the CSV. Workouts whose marker is already there are skipped.
@@ -179,7 +186,8 @@ custom exercises (`403 exceeds-custom-exercise-limit`).
 as `79D0BB3A`. Custom IDs are UUIDs.
 
 The set fields that are valid depend on the template's `type`. Build each set to fit its target
-template. `GET` returns `weight_reps`, `reps_only`, `bodyweight_weighted`, `bodyweight_assisted`,
+template (the table is in `src/pipeline/payload.ts`). Values the template doesn't record are left
+out with a warning. A type the tool doesn't know gets every value, also with a warning. `GET` returns `weight_reps`, `reps_only`, `bodyweight_weighted`, `bodyweight_assisted`,
 `duration`, `distance_duration`, `short_distance_weight`, `floors_duration` and
 `steps_duration`. `POST` uses other names for some of them (`CustomExerciseType` in the spec:
 `bodyweight_reps`, `bodyweight_assisted_reps`, `weight_duration`, …), so don't send a type read
