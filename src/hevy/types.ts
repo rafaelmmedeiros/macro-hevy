@@ -12,6 +12,17 @@ export interface HevyExerciseTemplate {
   thumbnail_url?: string | null
 }
 
+/** A workout as `GET /v1/workouts` returns it, limited to the fields this tool reads. */
+export interface HevyWorkout {
+  id: string
+  title: string
+  description: string | null
+  /** ISO 8601 in UTC, for example `2026-10-19T22:35:07+00:00`. */
+  start_time: string
+  end_time: string
+  exercises: { title: string; exercise_template_id: string }[]
+}
+
 /** The `workout` object in the body of `POST /v1/workouts`. */
 export interface NewWorkout {
   title: string

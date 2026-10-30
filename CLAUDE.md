@@ -17,8 +17,8 @@ never stored anywhere.
 
 ## Status
 
-Early development. The Vite + Svelte + TypeScript scaffold and the first pipeline stage (CSV
-parsing) exist. The wizard UI and the other stages don't yet.
+Early development. Every pure pipeline stage exists in `src/pipeline/` (parse, group, resolve,
+payload, diff). The Hevy client module, the execute step and the wizard UI don't yet.
 
 ## Commands
 
@@ -152,6 +152,9 @@ Users will re-import overlapping exports, and that must never create duplicates.
   (a separate cardio session, say) are listed for information and don't block anything. Many
   users log cardio as its own Hevy workout on strength days, so flagging every same-day workout
   would turn most of an import into conflicts.
+- **Same date means the same calendar date in the browser's time zone.** Hevy's `start_time` is
+  UTC, and a workout at 22:30 in São Paulo is already the next day in UTC, so convert before
+  comparing with CSV dates (`src/pipeline/diff.ts`).
 
 ## Exercise matching
 
@@ -173,6 +176,14 @@ and leaderboards, which group by template, so MacroFactor's fine-grained variant
 the common Hevy template for the movement: `Reverse V-Squat` and `V-Squat` both go to Squat
 (Machine), and grips or cable attachments don't get templates of their own. The MacroFactor name
 is kept in the exercise notes. Many-to-one entries are expected.
+
+**How the mapping grows (planned, not built).** The maintainer uses the tool first, so the
+mapping starts with their exercises. Anyone else's unmapped exercises fall through to the
+matching step, so nobody is blocked. Later, all still in the browser with no backend: rank Hevy
+templates by keywords (equipment, movement) so a pick is one click; remember the user's picks in
+`localStorage` (MacroFactor name → template ID only, never the API key) so re-imports don't ask
+again; and offer a "suggest these mappings" link that opens a prefilled GitHub issue with the
+JSON entries for the maintainer to review.
 
 To choose a mapping entry, look at the movement, not the name. Each template's `thumbnail_url`
 ends in a file name that describes the exact movement (`Lever-Neutral-Grip-Seated-Row-(plate-loaded)`
