@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { groupWorkouts } from './group'
+import { exerciseNames, groupWorkouts } from './group'
 import type { SetRow } from './parse'
 
 let nextLine = 2
@@ -102,5 +102,18 @@ describe('groupWorkouts', () => {
 
   it('returns no workouts for no rows', () => {
     expect(groupWorkouts([])).toEqual([])
+  })
+})
+
+describe('exerciseNames', () => {
+  it('lists each exercise once, in order of first appearance across workouts', () => {
+    const workouts = groupWorkouts([
+      row({ date: '2026-01-05', exercise: 'Barbell Bench Press' }),
+      row({ date: '2026-01-05', exercise: 'Cable Fly' }),
+      row({ date: '2026-01-06', exercise: 'Barbell Row' }),
+      row({ date: '2026-01-06', exercise: 'Barbell Bench Press' }),
+    ])
+
+    expect(exerciseNames(workouts)).toEqual(['Barbell Bench Press', 'Cable Fly', 'Barbell Row'])
   })
 })

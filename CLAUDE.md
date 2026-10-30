@@ -90,8 +90,14 @@ code, and that content has to reproduce the encoding quirks above.
   goes in as it is, with no doubling or halving.
 - **Title and description:** the title is the day name in parentheses at the end of `Workout`
   (`Push/Pull/Legs/Upper/Lower (Push)` → `Push`). If there are no parentheses, the title is
-  the whole name. The program name (`Push/Pull/Legs/Upper/Lower`) goes in the description,
-  next to the import marker.
+  the whole name. The description has the program name (`Push/Pull/Legs/Upper/Lower`), when
+  there is one, followed by a line that starts with `Imported from MacroFactor`. That line also
+  carries the import marker (see Deduplication). People read it in the Hevy app, so keep it
+  readable.
+- **Exercise notes:** every exercise in an imported workout gets `MacroFactor: <exercise name>`
+  in its `notes`, always, so the precise MacroFactor name survives even when several MacroFactor
+  exercises share one Hevy template. Two MacroFactor exercises that resolve to the same template
+  in one workout stay separate entries.
 - **RIR → RPE:** `rpe = 10 − RIR`. Hevy only accepts `6, 7, 7.5, 8, 8.5, 9, 9.5, 10`. Any
   other result, including RIR ≥ 5, becomes `null`. Don't round to the nearest allowed value.
 - **Set types:** `Standard Set` → `normal`, `Warm-Up Set` → `warmup`. An unknown type becomes
@@ -126,25 +132,44 @@ Users will re-import overlapping exports, and that must never create duplicates.
 
 - **Each workout gets a stable import key** built from date, workout name, and that name's
   ordinal on that date. The key must not depend on set content, so editing a workout in
-  MacroFactor later doesn't turn it into a "new" one. The key is written as a marker line in
-  the Hevy workout description.
+  MacroFactor later doesn't turn it into a "new" one. The key goes in the description's
+  `Imported from MacroFactor` line. The exact format gets decided with the payload stage. If
+  someone deletes that line in Hevy, the workout counts as unmarked, and the conflict rule below
+  still catches it.
 - **Before any write, collect existing markers.** Page through `GET /v1/workouts`, which
   returns newest first with at most 10 per page, until `start_time` is older than the
   earliest date in the CSV. Workouts whose marker is already there are skipped.
-- **Unmarked same-day workouts are conflicts** (under review, see Open questions). A Hevy
-  workout on the same date without a marker was probably logged by hand. Show it as a conflict
-  in the preview instead of skipping or importing silently.
+- **An unmarked same-day workout is a conflict only if it shares an exercise template** with
+  the workout being imported. That one was probably logged by hand, so show it as a conflict in
+  the preview instead of skipping or importing silently. Other unmarked workouts on that date
+  (a separate cardio session, say) are listed for information and don't block anything. Many
+  users log cardio as its own Hevy workout on strength days, so flagging every same-day workout
+  would turn most of an import into conflicts.
 
 ## Exercise matching
 
-Resolution order:
+Resolution order (`src/pipeline/resolve.ts`):
 
-1. A curated mapping file in the repo (MacroFactor name → Hevy built-in template ID). The
-   community can extend it through PRs.
-2. The user's existing custom templates, matched by exact title.
-3. The user picks a template in the UI, or the tool creates a custom template with
-   `POST /v1/exercise_templates`. That request needs `exercise_type`, `equipment_category`
-   and `muscle_group`.
+1. The template the user picked in the UI for that exercise.
+2. The curated mapping, `src/data/exercise-mapping.json`: MacroFactor name → `{ id, title }` of
+   a Hevy built-in template, sorted by name. The community extends it through PRs. An entry is
+   used only when the account has that template ID. When the account's title differs from the
+   entry's, the entry is still used and the preview shows a warning, since titles could be
+   renamed or localized.
+3. The user's custom templates, matched by exact title to the MacroFactor name.
+4. Otherwise the exercise is unresolved. The user picks a template, or the tool creates a custom
+   template with `POST /v1/exercise_templates`. That request needs `exercise_type`,
+   `equipment_category` and `muscle_group`.
+
+**Mapping entries centralize.** People who import into Hevy mostly use it for its social side
+and leaderboards, which group by template, so MacroFactor's fine-grained variants collapse onto
+the common Hevy template for the movement: `Reverse V-Squat` and `V-Squat` both go to Squat
+(Machine), and grips or cable attachments don't get templates of their own. The MacroFactor name
+is kept in the exercise notes. Many-to-one entries are expected.
+
+To choose a mapping entry, look at the movement, not the name. Each template's `thumbnail_url`
+ends in a file name that describes the exact movement (`Lever-Neutral-Grip-Seated-Row-(plate-loaded)`
+is Iso-Lateral Row (Machine)), which settles most ambiguous cases.
 
 Creating a custom template has to be idempotent: check by title first. Accounts have a cap on
 custom exercises (`403 exceeds-custom-exercise-limit`).
@@ -180,10 +205,6 @@ Don't treat these as settled:
   seem to be generated per account. Hevy's own spec uses `D04AC939` as an example, and in the
   maintainer's account that is Squat (Barbell). A third-party Hevy CLI uses `79D0BB3A` for the
   bench press in its "Push Day" example, and in the maintainer's account that is Bench Press
-  (Barbell). One way to stay safe anyway: store the Hevy title next to each ID in the mapping,
-  and only use an entry when the account's template list has that ID with that title.
-- **Which unmarked same-day workouts count as conflicts?** The maintainer logs cardio (spinning,
-  walking) as separate Hevy workouts on most strength days. Under the current rule, 6 of the 9
-  workouts in the reference export would be conflicts. A narrower rule, such as flagging only
-  Hevy workouts that share an exercise template with the workout being imported, needs a
-  decision.
+  (Barbell). If this turns out wrong, resolution still fails visibly: an ID the account lacks
+  leaves the exercise unresolved, and an ID that names another exercise there triggers the
+  title-mismatch warning in the preview.

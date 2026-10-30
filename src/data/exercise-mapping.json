@@ -1,0 +1,150 @@
+{
+  "45° Incline Dumbbell Press": {
+    "id": "07B38369",
+    "title": "Incline Bench Press (Dumbbell)"
+  },
+  "45° Leg Press": {
+    "id": "C7973E0E",
+    "title": "Leg Press (Machine)"
+  },
+  "45° Leg Press Calf Raise": {
+    "id": "91237BDD",
+    "title": "Calf Press (Machine)"
+  },
+  "Barbell Back Squat": {
+    "id": "D04AC939",
+    "title": "Squat (Barbell)"
+  },
+  "Barbell Bench Press": {
+    "id": "79D0BB3A",
+    "title": "Bench Press (Barbell)"
+  },
+  "Barbell Romanian Deadlift": {
+    "id": "2B4B7310",
+    "title": "Romanian Deadlift (Barbell)"
+  },
+  "Cable Bar Straight Arm Lat Pulldown": {
+    "id": "D2387AB1",
+    "title": "Straight Arm Lat Pulldown (Cable)"
+  },
+  "Cable V-Bar Overhead Triceps Extension": {
+    "id": "B5EFBF9C",
+    "title": "Overhead Triceps Extension (Cable)"
+  },
+  "Dual Cable Bayesian Curl": {
+    "id": "2DBCA395",
+    "title": "Behind the Back Curl (Cable)"
+  },
+  "Dual Cable Lateral Raise": {
+    "id": "BE289E45",
+    "title": "Lateral Raise (Cable)"
+  },
+  "High Pulley Cable V-Bar Overhead Triceps Extension": {
+    "id": "B5EFBF9C",
+    "title": "Overhead Triceps Extension (Cable)"
+  },
+  "Horizontal Cable Fly": {
+    "id": "651F844C",
+    "title": "Cable Fly Crossovers"
+  },
+  "Leg Extension": {
+    "id": "75A4F6C4",
+    "title": "Leg Extension (Machine)"
+  },
+  "Neutral Close Grip Cable Lat Pulldown": {
+    "id": "4E5257DE",
+    "title": "Lat Pulldown - Close Grip (Cable)"
+  },
+  "Neutral Grip Cable Rear Delt Fly": {
+    "id": "C315DC2A",
+    "title": "Rear Delt Reverse Fly (Cable)"
+  },
+  "Neutral Grip Pin-Loaded Machine Row": {
+    "id": "1DF4A847",
+    "title": "Seated Row (Machine)"
+  },
+  "Neutral Grip Plate-Loaded Machine Row": {
+    "id": "AA1EB7D8",
+    "title": "Iso-Lateral Row (Machine)"
+  },
+  "Neutral Grip Plate-Loaded Machine Shoulder Press": {
+    "id": "059E835D",
+    "title": "Shoulder Press (Machine Plates)"
+  },
+  "Overhand Grip Cable Lat Pulldown": {
+    "id": "6A6C31A5",
+    "title": "Lat Pulldown (Cable)"
+  },
+  "Overhand Grip Cable Rear Delt Fly": {
+    "id": "C315DC2A",
+    "title": "Rear Delt Reverse Fly (Cable)"
+  },
+  "Overhand Grip Machine Rear Delt Fly": {
+    "id": "D8281C62",
+    "title": "Rear Delt Reverse Fly (Machine)"
+  },
+  "Pin-Loaded Machine Crunch (With Chest Pad)": {
+    "id": "EB43ADD4",
+    "title": "Crunch (Machine)"
+  },
+  "Pin-Loaded Machine Overhead Triceps Extension": {
+    "id": "3092FADD",
+    "title": "Triceps Extension (Machine)"
+  },
+  "Pin-Loaded Machine Preacher Curl": {
+    "id": "1E9A6B8E",
+    "title": "Preacher Curl (Machine)"
+  },
+  "Plate-Loaded Machine High Row": {
+    "id": "BC3492DA",
+    "title": "Iso-Lateral High Row (Machine)"
+  },
+  "Plate-Loaded Machine Hip Thrust (Starting From The Bottom)": {
+    "id": "68CE0B9B",
+    "title": "Hip Thrust (Machine)"
+  },
+  "Plate-Loaded Machine Shoulder Press": {
+    "id": "059E835D",
+    "title": "Shoulder Press (Machine Plates)"
+  },
+  "Reverse V-Squat": {
+    "id": "CC35A01F",
+    "title": "Squat (Machine)"
+  },
+  "Seated Dumbbell Lateral Raise": {
+    "id": "9372FFAA",
+    "title": "Seated Lateral Raise (Dumbbell)"
+  },
+  "Seated Dumbbell Overhead Press": {
+    "id": "9930DF71",
+    "title": "Seated Overhead Press (Dumbbell)"
+  },
+  "Seated Hamstring Curl": {
+    "id": "11A123F3",
+    "title": "Seated Leg Curl (Machine)"
+  },
+  "Seated Machine Hip Abduction": {
+    "id": "F4B4C6EE",
+    "title": "Hip Abduction (Machine)"
+  },
+  "Seated Plate-Loaded Machine Chest Press": {
+    "id": "24706DCD",
+    "title": "Iso-Lateral Chest Press (Machine)"
+  },
+  "Single Arm High Cable Lateral Raise": {
+    "id": "DE68C825",
+    "title": "Single Arm Lateral Raise (Cable)"
+  },
+  "Single Leg Leg Extension": {
+    "id": "629AE73D",
+    "title": "Single Leg Extensions"
+  },
+  "Snatch Grip Shrug": {
+    "id": "0B841777",
+    "title": "Shrug (Barbell)"
+  },
+  "Weighted Roman Chair Back Extension": {
+    "id": "091737FA",
+    "title": "Back Extension (Weighted Hyperextension)"
+  }
+}

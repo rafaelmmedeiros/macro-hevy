@@ -53,3 +53,8 @@ export function groupWorkouts(rows: SetRow[]): Workout[] {
 
   return workouts
 }
+
+/** Every distinct exercise name across the workouts, in order of first appearance. */
+export function exerciseNames(workouts: readonly Workout[]): string[] {
+  return [...new Set(workouts.flatMap((w) => w.exercises.map((e) => e.name)))]
+}
