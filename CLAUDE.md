@@ -18,7 +18,8 @@ never stored anywhere.
 ## Status
 
 Early development. Every pure pipeline stage exists in `src/pipeline/` (parse, group, resolve,
-payload, diff). The Hevy client module, the execute step and the wizard UI don't yet.
+payload, diff), and so does the Hevy client (`src/hevy/client.ts`). The execute step and the
+wizard UI don't yet.
 
 ## Commands
 
@@ -43,7 +44,7 @@ There is no linter or formatter yet.
 - **The pipeline is made of pure stages:** parse CSV → group into workouts → resolve exercises
   → build Hevy payloads → diff against what is already in Hevy → execute. Every stage before
   execute is pure and can be tested offline against fixture CSVs. All network access goes
-  through a single Hevy client module.
+  through a single Hevy client module, `src/hevy/client.ts`, whose tests use a fake `fetch`.
 - **Stages live in `src/pipeline/`**, each with its `*.test.ts` next to it. They report problems
   as `Issue`s (`src/pipeline/issue.ts`) instead of throwing, so the preview can show them.
 - **There is no undo.** The API has no `DELETE` for workouts, so a bad import can only be fixed
@@ -227,3 +228,10 @@ Don't treat these as settled:
   (Barbell). If this turns out wrong, resolution still fails visibly: an ID the account lacks
   leaves the exercise unresolved, and an ID that names another exercise there triggers the
   title-mismatch warning in the preview.
+- **Does `GET /v1/workouts` sort by `start_time` or by creation time?** The spec doesn't say.
+  Existing data comes back by `start_time`, newest first, but it was also created in that order.
+  Backfilled imports tell the two apart: if they come back near the top instead of at their
+  dates, the client's stop condition (a whole page older than the earliest CSV date) can miss
+  workouts. Check after the first real import.
+- **What type is the ID that `POST /v1/exercise_templates` returns?** The spec says integer, but
+  custom template IDs are UUIDs. The client accepts both. Check on the first real creation.

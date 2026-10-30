@@ -1,3 +1,14 @@
+/** The account behind an API key, from `GET /v1/user/info`. */
+export interface HevyUser {
+  id: string
+  username: string
+  name: string
+  url: string
+  weight_unit: 'kg' | 'lbs'
+  distance_unit: 'kilometers' | 'miles'
+  is_pro: boolean
+}
+
 /** An exercise template as `GET /v1/exercise_templates` returns it. */
 export interface HevyExerciseTemplate {
   /** 8-character code for built-in templates, UUID for custom ones. */
@@ -53,4 +64,23 @@ export interface NewWorkoutSet {
   custom_metric: number | null
   /** Only 6, 7, 7.5, 8, 8.5, 9, 9.5 or 10. */
   rpe: number | null
+}
+
+export type MuscleGroup =
+  | 'abdominals' | 'shoulders' | 'biceps' | 'triceps' | 'forearms' | 'quadriceps' | 'hamstrings'
+  | 'calves' | 'glutes' | 'abductors' | 'adductors' | 'lats' | 'upper_back' | 'traps'
+  | 'lower_back' | 'chest' | 'cardio' | 'neck' | 'full_body' | 'other'
+
+/** The `exercise` object in the body of `POST /v1/exercise_templates`. */
+export interface NewExerciseTemplate {
+  title: string
+  /** `CustomExerciseType` in the spec. Some names differ from the types `GET` returns. */
+  exercise_type:
+    | 'weight_reps' | 'reps_only' | 'bodyweight_reps' | 'bodyweight_assisted_reps' | 'duration'
+    | 'weight_duration' | 'distance_duration' | 'short_distance_weight'
+  equipment_category:
+    | 'none' | 'barbell' | 'dumbbell' | 'kettlebell' | 'machine' | 'plate' | 'resistance_band'
+    | 'suspension' | 'other'
+  muscle_group: MuscleGroup
+  other_muscles: MuscleGroup[]
 }
