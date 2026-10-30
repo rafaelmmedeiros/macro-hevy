@@ -45,6 +45,18 @@ const ALLOWED_RPE = new Set([6, 7, 7.5, 8, 8.5, 9, 9.5, 10])
 
 const NAME_WITH_DAY = /^(.*?)\s*\(([^()]*)\)$/
 
+const TIME_OF_DAY = /^([01]\d|2[0-3]):[0-5]\d$/
+
+/**
+ * The moment `time` (`HH:mm`) happens on `date` (`YYYY-MM-DD`) in the browser's time zone, or null
+ * when the time isn't valid.
+ */
+export function localStartTime(date: string, time: string): Date | null {
+  if (!TIME_OF_DAY.test(time)) return null
+  // A date-time without an offset is read as local time.
+  return new Date(`${date}T${time}:00`)
+}
+
 /** `Program (Day)` → title `Day` and program `Program`. A name without a day is all title. */
 export function splitWorkoutName(name: string): { title: string; program: string | null } {
   const match = NAME_WITH_DAY.exec(name)

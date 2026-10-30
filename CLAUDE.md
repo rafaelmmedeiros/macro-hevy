@@ -17,9 +17,11 @@ never stored anywhere.
 
 ## Status
 
-Early development. Every pure pipeline stage exists in `src/pipeline/` (parse, group, resolve,
-payload, diff), and so does the Hevy client (`src/hevy/client.ts`). The execute step and the
-wizard UI don't yet.
+Early development. The four wizard steps work end to end (`src/steps/`, wired in
+`src/App.svelte`) on top of the pure pipeline stages in `src/pipeline/` and the Hevy modules in
+`src/hevy/` (client, account connection, importer). Not built yet: creating a custom exercise
+from the matching step, and the planned ways for the mapping to grow. No real import has run
+yet, so the open questions about the API below are still open.
 
 ## Commands
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { HevyExerciseTemplate } from '../hevy/types'
 import type { Workout, WorkoutExercise, WorkoutSet } from './group'
-import { buildWorkout, splitWorkoutName, type PayloadOptions } from './payload'
+import { buildWorkout, localStartTime, splitWorkoutName, type PayloadOptions } from './payload'
 import type { Resolution } from './resolve'
 
 function template(id: string, title: string, type = 'weight_reps'): HevyExerciseTemplate {
@@ -220,5 +220,16 @@ describe('splitWorkoutName', () => {
 
   it('handles a day with no program before it', () => {
     expect(splitWorkoutName('(Push)')).toEqual({ title: 'Push', program: null })
+  })
+})
+
+describe('localStartTime', () => {
+  it('reads the time of day in the local time zone', () => {
+    expect(localStartTime('2026-10-19', '18:30')).toEqual(new Date(2026, 9, 19, 18, 30))
+    expect(localStartTime('2026-10-19', '00:00')).toEqual(new Date(2026, 9, 19, 0, 0))
+  })
+
+  it('returns null for a time that is not HH:mm', () => {
+    for (const time of ['', '24:00', '7:30', '18:60', '18:30:00']) expect(localStartTime('2026-10-19', time)).toBeNull()
   })
 })
