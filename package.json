@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "description": "Import MacroFactor workout exports into Hevy, in the browser.",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
