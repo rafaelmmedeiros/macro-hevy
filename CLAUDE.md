@@ -33,6 +33,9 @@ on 2026-10-30 (one workout), and what Hevy stored matched the built payload fiel
   file: `npx vitest run src/pipeline/parse.test.ts`. One test: add `-t "<test name>"`.
 - `npm run check`: type-checks Svelte and TypeScript (`svelte-check`, then `tsc` for the config).
 - `npm run build`: production build in `dist/`, with the base path `/macro-hevy/` for GitHub Pages.
+- **Deploy:** every push to `main` runs `.github/workflows/deploy.yml`, which tests, type-checks,
+  builds and publishes to `https://rafaelmmedeiros.github.io/macro-hevy/`. A failing test blocks
+  the deploy. The repo's Pages source must be set to "GitHub Actions".
 
 There is no linter or formatter yet.
 
