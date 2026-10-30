@@ -31,7 +31,7 @@
 
   // Workouts reloaded from Hevy before and after every import. Until then, what step 2 loaded.
   let reloaded = $state.raw<HevyWorkout[] | null>(null)
-  let defaultTime = $state('18:00')
+  let defaultTime = $state('12:00')
   let timePerWorkout = $state(false)
   let times = $state<Record<string, string>>({})
   let isPrivate = $state(false)
