@@ -17,8 +17,19 @@ never stored anywhere.
 
 ## Status
 
-Discovery. There is no code and no tooling yet, so there are no build, lint or test commands.
-Don't make them up. Add them here when they exist.
+Early development. The Vite + Svelte + TypeScript scaffold and the first pipeline stage (CSV
+parsing) exist. The wizard UI and the other stages don't yet.
+
+## Commands
+
+- `npm install`: needs Node 22.12 or newer (Vite 8).
+- `npm run dev`: dev server.
+- `npm test`: runs every test once with Vitest. `npm run test:watch` keeps them running. One
+  file: `npx vitest run src/pipeline/parse.test.ts`. One test: add `-t "<test name>"`.
+- `npm run check`: type-checks Svelte and TypeScript (`svelte-check`, then `tsc` for the config).
+- `npm run build`: production build in `dist/`, with the base path `/macro-hevy/` for GitHub Pages.
+
+There is no linter or formatter yet.
 
 ## Architecture
 
@@ -33,8 +44,11 @@ Don't make them up. Add them here when they exist.
   → build Hevy payloads → diff against what is already in Hevy → execute. Every stage before
   execute is pure and can be tested offline against fixture CSVs. All network access goes
   through a single Hevy client module.
+- **Stages live in `src/pipeline/`**, each with its `*.test.ts` next to it. They report problems
+  as `Issue`s (`src/pipeline/issue.ts`) instead of throwing, so the preview can show them.
 - **There is no undo.** The API has no `DELETE` for workouts, so a bad import can only be fixed
-  by hand in the Hevy app. Every write must come after a preview the user has confirmed.
+  by hand in the Hevy app. `PUT /v1/workouts/{workoutId}` can overwrite a workout, but nothing
+  can remove one. Every write must come after a preview the user has confirmed.
 
 ## MacroFactor export format
 
@@ -49,6 +63,8 @@ Weight (kg), Reps, RIR, Duration, Distance short (m), Distance long (km)`.
   the decoded text back to Latin-1/CP-1252 bytes and decode those as UTF-8. Only do this when
   the pattern is detected, so a correctly encoded export still works. Read columns by
   normalized header name, never by position.
+- **Lines end in CRLF and the last row has no line break after it.** Only the header has quoted
+  cells.
 - `Workout Duration` is in seconds. `Workout` is `Program (Day)`, for example
   `Push/Pull/Legs/Upper/Lower (Push)`.
 - **Units are part of the header names.** Only kg appears in the sample. An account set to
@@ -115,9 +131,9 @@ Users will re-import overlapping exports, and that must never create duplicates.
 - **Before any write, collect existing markers.** Page through `GET /v1/workouts`, which
   returns newest first with at most 10 per page, until `start_time` is older than the
   earliest date in the CSV. Workouts whose marker is already there are skipped.
-- **Unmarked same-day workouts are conflicts.** A Hevy workout on the same date without a
-  marker was probably logged by hand. Show it as a conflict in the preview instead of skipping
-  or importing silently.
+- **Unmarked same-day workouts are conflicts** (under review, see Open questions). A Hevy
+  workout on the same date without a marker was probably logged by hand. Show it as a conflict
+  in the preview instead of skipping or importing silently.
 
 ## Exercise matching
 
@@ -133,9 +149,16 @@ Resolution order:
 Creating a custom template has to be idempotent: check by title first. Accounts have a cap on
 custom exercises (`403 exceeds-custom-exercise-limit`).
 
-The set fields that are valid depend on the template's `type` (`weight_reps`, `reps_only`,
-`bodyweight_reps`, `duration`, `distance_duration`, …). Build each set to fit its target
-template.
+`GET /v1/exercise_templates` lists built-in and custom templates together (about 450, at most
+100 per page) and flags custom ones with `is_custom`. Built-in IDs are 8-character codes such
+as `79D0BB3A`. Custom IDs are UUIDs.
+
+The set fields that are valid depend on the template's `type`. Build each set to fit its target
+template. `GET` returns `weight_reps`, `reps_only`, `bodyweight_weighted`, `bodyweight_assisted`,
+`duration`, `distance_duration`, `short_distance_weight`, `floors_duration` and
+`steps_duration`. `POST` uses other names for some of them (`CustomExerciseType` in the spec:
+`bodyweight_reps`, `bodyweight_assisted_reps`, `weight_duration`, …), so don't send a type read
+from `GET` back to `POST` without mapping it.
 
 ## Hevy API
 
@@ -151,4 +174,16 @@ template.
 
 Don't treat these as settled:
 
-- Are built-in template IDs the same across all accounts? The curated mapping depends on it.
+- **Are built-in template IDs the same across all accounts?** The curated mapping depends on it.
+  Very likely yes, but nobody has compared two accounts yet. What was found on 2026-10-30:
+  built-in IDs are short codes and some look hand-typed (`32HKJ34K`, `9373FSD1`), so they don't
+  seem to be generated per account. Hevy's own spec uses `D04AC939` as an example, and in the
+  maintainer's account that is Squat (Barbell). A third-party Hevy CLI uses `79D0BB3A` for the
+  bench press in its "Push Day" example, and in the maintainer's account that is Bench Press
+  (Barbell). One way to stay safe anyway: store the Hevy title next to each ID in the mapping,
+  and only use an entry when the account's template list has that ID with that title.
+- **Which unmarked same-day workouts count as conflicts?** The maintainer logs cardio (spinning,
+  walking) as separate Hevy workouts on most strength days. Under the current rule, 6 of the 9
+  workouts in the reference export would be conflicts. A narrower rule, such as flagging only
+  Hevy workouts that share an exercise template with the workout being imported, needs a
+  decision.
