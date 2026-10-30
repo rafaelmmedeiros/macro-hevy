@@ -24,7 +24,9 @@ wizard UI don't yet.
 ## Commands
 
 - `npm install`: needs Node 22.12 or newer (Vite 8).
-- `npm run dev`: dev server.
+- `npm run dev`: dev server at `http://localhost:5173/macro-hevy/`. On Windows, `dev.bat`
+  installs dependencies when `node_modules` is missing, starts it, and opens the browser.
+  `.bat` files are kept with CRLF line endings (`.gitattributes`).
 - `npm test`: runs every test once with Vitest. `npm run test:watch` keeps them running. One
   file: `npx vitest run src/pipeline/parse.test.ts`. One test: add `-t "<test name>"`.
 - `npm run check`: type-checks Svelte and TypeScript (`svelte-check`, then `tsc` for the config).
