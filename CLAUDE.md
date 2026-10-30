@@ -178,7 +178,10 @@ Resolution order (`src/pipeline/resolve.ts`):
    a Hevy built-in template, sorted by name. The community extends it through PRs. An entry is
    used only when the account has that template ID. When the account's title differs from the
    entry's, the entry is still used and the preview shows a warning, since titles could be
-   renamed or localized.
+   renamed or localized. An entry may also have a `customTitle`: when the account has a custom
+   template with exactly that title, it wins over the built-in. Custom IDs differ in every
+   account, so only a title can be shared. Anyone without that custom template gets the
+   built-in.
 3. The user's custom templates, matched by exact title to the MacroFactor name.
 4. Otherwise the exercise is unresolved. The user picks a template, or the tool creates a custom
    template with `POST /v1/exercise_templates`. That request needs `exercise_type`,

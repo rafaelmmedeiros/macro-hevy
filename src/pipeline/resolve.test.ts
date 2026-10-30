@@ -91,6 +91,30 @@ describe('resolveExercises', () => {
     ])
   })
 
+  it("prefers the mapping's custom template when the account has one with that exact title", () => {
+    const mapping: ExerciseMapping = {
+      'High Pulley Cable V-Bar Overhead Triceps Extension': {
+        id: 'B5EFBF9C',
+        title: 'Overhead Triceps Extension (Cable)',
+        customTitle: 'High Pulley Overhead Triceps Extension (Cable)',
+      },
+    }
+    const builtIn = template('B5EFBF9C', 'Overhead Triceps Extension (Cable)')
+    const custom = template('fc4af33d-140d-4535-9348-7d4bc452f546', 'High Pulley Overhead Triceps Extension (Cable)', true)
+    const sameTitleBuiltIn = template('ABCDEF12', 'High Pulley Overhead Triceps Extension (Cable)')
+    const names = ['High Pulley Cable V-Bar Overhead Triceps Extension']
+
+    expect(summary(resolveExercises(names, [builtIn, custom], mapping).resolutions)).toEqual({
+      'High Pulley Cable V-Bar Overhead Triceps Extension': 'mapping:High Pulley Overhead Triceps Extension (Cable)',
+    })
+    // Without that custom template, or with only a built-in of that title, the built-in entry is used.
+    for (const templates of [[builtIn], [builtIn, sameTitleBuiltIn]]) {
+      expect(summary(resolveExercises(names, templates, mapping).resolutions)).toEqual({
+        'High Pulley Cable V-Bar Overhead Triceps Extension': 'mapping:Overhead Triceps Extension (Cable)',
+      })
+    }
+  })
+
   it('does not match built-in templates by title', () => {
     const builtInNamedLikeMacroFactor = template('ABCDEF12', 'Snatch Grip Shrug')
     const { resolutions } = resolveExercises(['Snatch Grip Shrug'], [builtInNamedLikeMacroFactor], {})

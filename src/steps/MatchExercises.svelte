@@ -56,7 +56,12 @@
           <div class="names">
             <span class="macrofactor">{name}</span>
             {#if resolution?.status === 'resolved'}
-              <span class="hevy">→ {resolution.template.title} <span class="source">{SOURCE_LABELS[resolution.source]}</span></span>
+              <span class="hevy">
+                → {resolution.template.title}
+                <span class="source">
+                  {SOURCE_LABELS[resolution.source]}{resolution.source === 'mapping' && resolution.template.is_custom ? ' · your custom exercise' : ''}
+                </span>
+              </span>
             {:else}
               <span class="hevy missing">→ no Hevy exercise yet</span>
             {/if}
