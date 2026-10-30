@@ -8,7 +8,7 @@ import type { HevyWorkout, NewWorkout } from './types'
 const WORKOUT: Workout = { date: '2026-10-21', name: 'PPL (Legs)', ordinal: 1, durationSeconds: 3600, exercises: [] }
 
 function hevyWorkout(id: string): HevyWorkout {
-  return { id, title: 'Legs', description: null, start_time: '2026-10-21T21:00:00Z', end_time: '2026-10-21T22:00:00Z', exercises: [] }
+  return { id, title: 'Legs', description: null, start_time: '2026-10-21T21:00:00Z', end_time: '2026-10-21T22:00:00Z', created_at: '2026-10-21T22:00:00Z', exercises: [] }
 }
 
 function diff(key: string, status: WorkoutDiff['status']): WorkoutDiff {

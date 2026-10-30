@@ -31,8 +31,9 @@ function fakeFetch(routes: Record<string, { status?: number; body: unknown }>) {
   return { fetchFn, calls }
 }
 
-function workoutStartingAt(startTime: string): HevyWorkout {
-  return { id: startTime, title: 'W', description: null, start_time: startTime, end_time: startTime, exercises: [] }
+/** A workout saved when it ended, unless `createdAt` says it was backfilled later. */
+function workoutStartingAt(startTime: string, createdAt = startTime): HevyWorkout {
+  return { id: startTime, title: 'W', description: null, start_time: startTime, end_time: startTime, created_at: createdAt, exercises: [] }
 }
 
 describe('createHevyClient', () => {
@@ -80,6 +81,27 @@ describe('createHevyClient', () => {
 
     expect(calls.map((c) => new URL(c.url).searchParams.get('page'))).toEqual(['1', '2', '3'])
     expect(workouts).toHaveLength(6)
+  })
+
+  it('keeps paging past backfilled workouts, which come first because Hevy sorts by creation', async () => {
+    const backfilled = (start: string) => workoutStartingAt(start, '2026-10-30T22:10:01Z')
+    const { fetchFn, calls } = fakeFetch({
+      // Old workouts imported today: they started long before the cutoff but were created after it.
+      'GET /v1/workouts?page=1&pageSize=10': {
+        body: { page: 1, page_count: 9, workouts: [backfilled('2025-03-02T21:00:00Z'), backfilled('2025-03-01T21:00:00Z')] },
+      },
+      'GET /v1/workouts?page=2&pageSize=10': {
+        body: { page: 2, page_count: 9, workouts: [backfilled('2026-10-19T15:00:00Z'), workoutStartingAt('2026-10-27T20:00:00Z')] },
+      },
+      'GET /v1/workouts?page=3&pageSize=10': {
+        body: { page: 3, page_count: 9, workouts: [workoutStartingAt('2026-10-17T11:00:00Z'), workoutStartingAt('2026-10-16T19:00:00Z')] },
+      },
+    })
+
+    const workouts = await createHevyClient(API_KEY, fetchFn).workoutsSince('2026-10-19')
+
+    expect(calls).toHaveLength(3)
+    expect(workouts.map((w) => w.start_time)).toContain('2026-10-19T15:00:00Z')
   })
 
   it('stops paging workouts at the last page', async () => {

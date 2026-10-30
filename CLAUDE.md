@@ -20,8 +20,8 @@ never stored anywhere.
 Early development. The four wizard steps work end to end (`src/steps/`, wired in
 `src/App.svelte`) on top of the pure pipeline stages in `src/pipeline/` and the Hevy modules in
 `src/hevy/` (client, account connection, importer). Not built yet: creating a custom exercise
-from the matching step, and the planned ways for the mapping to grow. No real import has run
-yet, so the open questions about the API below are still open.
+from the matching step, and the planned ways for the mapping to grow. The first real import ran
+on 2026-10-30 (one workout), and what Hevy stored matched the built payload field by field.
 
 ## Commands
 
@@ -153,9 +153,12 @@ Users will re-import overlapping exports, and that must never create duplicates.
   format once workouts have been imported with it**, or earlier imports stop being recognized.
   If someone deletes that line in Hevy, the workout counts as unmarked, and the conflict rule
   below still catches it.
-- **Before any write, collect existing markers.** Page through `GET /v1/workouts`, which
-  returns newest first with at most 10 per page, until `start_time` is older than the
-  earliest date in the CSV. Workouts whose marker is already there are skipped.
+- **Before any write, collect existing markers.** Page through `GET /v1/workouts` (at most 10
+  per page). It sorts by `created_at`, newest first, **not** by `start_time`: on 2026-10-30 a
+  workout imported that day for 2026-10-19 came back at the top of page 1. So stop once a whole
+  page was created more than a day before the earliest CSV date; a workout is created after it
+  starts, so nothing further down can be newer. Stopping on `start_time` would miss markers
+  behind a batch of backfilled old workouts. Workouts whose marker is already there are skipped.
 - **An unmarked same-day workout is a conflict only if it shares an exercise template** with
   the workout being imported. That one was probably logged by hand, so show it as a conflict in
   the preview instead of skipping or importing silently. Other unmarked workouts on that date
@@ -237,10 +240,5 @@ Don't treat these as settled:
   (Barbell). If this turns out wrong, resolution still fails visibly: an ID the account lacks
   leaves the exercise unresolved, and an ID that names another exercise there triggers the
   title-mismatch warning in the preview.
-- **Does `GET /v1/workouts` sort by `start_time` or by creation time?** The spec doesn't say.
-  Existing data comes back by `start_time`, newest first, but it was also created in that order.
-  Backfilled imports tell the two apart: if they come back near the top instead of at their
-  dates, the client's stop condition (a whole page older than the earliest CSV date) can miss
-  workouts. Check after the first real import.
 - **What type is the ID that `POST /v1/exercise_templates` returns?** The spec says integer, but
   custom template IDs are UUIDs. The client accepts both. Check on the first real creation.

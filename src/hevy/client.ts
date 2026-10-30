@@ -25,8 +25,10 @@ export interface HevyClient {
   /** Every built-in and custom template on the account. */
   exerciseTemplates(): Promise<HevyExerciseTemplate[]>
   /**
-   * Workouts newest first, paging until a whole page started before `earliestDate` (minus a day,
-   * so the cut is safe in any time zone). May include a few older workouts.
+   * Every workout that could start on or after `earliestDate` in any time zone, and possibly some
+   * older ones. Hevy lists workouts by creation time, newest first, so a backfilled workout comes
+   * before recent ones. Paging stops once a whole page was created more than a day before
+   * `earliestDate`: a workout is created after it starts, so nothing further down can be newer.
    */
   workoutsSince(earliestDate: string): Promise<HevyWorkout[]>
   createWorkout(workout: NewWorkout): Promise<HevyWorkout>
@@ -78,8 +80,8 @@ export function createHevyClient(
       for (let page = 1; ; page++) {
         const body = await request<Page & { workouts: HevyWorkout[] }>('GET', `/v1/workouts?page=${page}&pageSize=10`)
         workouts.push(...body.workouts)
-        const allOlder = body.workouts.every((w) => Date.parse(w.start_time) < cutoff)
-        if (allOlder || page >= body.page_count) return workouts
+        const allCreatedBefore = body.workouts.every((w) => Date.parse(w.created_at) < cutoff)
+        if (allCreatedBefore || page >= body.page_count) return workouts
       }
     },
 

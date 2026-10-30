@@ -31,6 +31,8 @@ export interface HevyWorkout {
   /** ISO 8601 in UTC, for example `2026-10-19T22:35:07+00:00`. */
   start_time: string
   end_time: string
+  /** When it was saved to Hevy. `GET /v1/workouts` sorts by this, not by `start_time`. */
+  created_at: string
   exercises: { title: string; exercise_template_id: string }[]
 }
 

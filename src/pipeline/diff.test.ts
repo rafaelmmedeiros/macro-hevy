@@ -43,6 +43,7 @@ function hevyWorkout(startTime: string, templateIds: string[], description: stri
     description,
     start_time: startTime,
     end_time: startTime,
+    created_at: startTime,
     exercises: templateIds.map((id) => ({ title: id, exercise_template_id: id })),
   }
 }
