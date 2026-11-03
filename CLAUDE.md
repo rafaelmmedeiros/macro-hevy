@@ -142,6 +142,8 @@ code, and that content has to reproduce the encoding quirks above.
   in its `notes`, always, so the precise MacroFactor name survives even when several MacroFactor
   exercises share one Hevy template. Two MacroFactor exercises that resolve to the same template
   in one workout stay separate entries.
+- **Partial reps:** MacroFactor logs a partial rep as a fraction of a rep (`11.33`). Hevy only
+  takes whole reps, so the fraction is dropped (`11`), with no warning.
 - **RIR → RPE:** `rpe = 10 − RIR`. Hevy only accepts `6, 7, 7.5, 8, 8.5, 9, 9.5, 10`. Any
   other result, including RIR ≥ 5, becomes `null`. Don't round to the nearest allowed value.
 - **Set types:** `Standard Set` → `normal`, `Warm-Up Set` → `warmup`. An unknown type becomes

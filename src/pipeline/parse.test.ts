@@ -138,7 +138,7 @@ describe('parseExport', () => {
         'Date,Workout Duration,Workout,Exercise,Set Type,Weight (kg),Reps',
         '2026-01-05,3000,Push,Barbell Bench Press,Standard Set,60,8',
         '05/01/2026,3000,Push,Barbell Bench Press,Standard Set,60,8',
-        '2026-01-05,3000,Push,,Standard Set,60.5kg,8.5',
+        '2026-01-05,3000,Push,,Standard Set,60.5kg,-8',
         '2026-01-05,3000,Push,Barbell Bench Press,Standard Set,60',
       ),
     )
@@ -149,10 +149,23 @@ describe('parseExport', () => {
       {
         severity: 'error',
         line: 4,
-        message: '"Exercise" is empty; "Weight (kg)" has the invalid value "60.5kg"; "Reps" has the invalid value "8.5"; skipped.',
+        message: '"Exercise" is empty; "Weight (kg)" has the invalid value "60.5kg"; "Reps" has the invalid value "-8"; skipped.',
       },
       { severity: 'error', line: 5, message: 'Expected 7 cells but found 6; skipped.' },
     ])
+  })
+
+  it('drops the partial rep from fractional reps', () => {
+    const result = parseExport(
+      exportOf(
+        'Date,Workout Duration,Workout,Exercise,Set Type,Weight (kg),Reps',
+        '2026-01-05,3000,Pull,Plate-Loaded Machine High Row,Standard Set,55,11.33',
+        '2026-01-05,3000,Pull,Plate-Loaded Machine High Row,Standard Set,55,8.67',
+      ),
+    )
+
+    expect(result.issues).toEqual([])
+    expect(result.rows.map((r) => r.reps)).toEqual([11, 8])
   })
 
   it('ignores rows where every cell is empty', () => {

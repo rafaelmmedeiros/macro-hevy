@@ -79,6 +79,7 @@ type Columns = Partial<Record<ColumnKey, Column>>
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 const INTEGER = /^\d+$/
 const DECIMAL = /^-?\d+(\.\d+)?$/
+const UNSIGNED_DECIMAL = /^\d+(\.\d+)?$/
 const HEADER_WITH_UNIT = /^(.*?)\s*\(([^)]*)\)$/
 
 /** Parses a MacroFactor workout export into set rows. Rows with invalid values are skipped and reported. */
@@ -164,6 +165,10 @@ function resolveColumns(cells: string[], issues: Issue[]): Columns | null {
   return readable ? columns : null
 }
 
+function truncate(value: number | null): number | null {
+  return value === null ? null : Math.trunc(value)
+}
+
 function parseRow(record: CsvRecord, width: number, columns: Columns, issues: Issue[]): SetRow | null {
   const { line, cells } = record
   if (cells.length !== width) {
@@ -209,7 +214,9 @@ function parseRow(record: CsvRecord, width: number, columns: Columns, issues: Is
     setType: required('setType'),
     baseWeightKg: number('baseWeight', DECIMAL),
     weightKg: number('weight', DECIMAL),
-    reps: number('reps', INTEGER),
+    // MacroFactor logs a partial rep as a fraction (11.33). Hevy only takes whole reps, so the
+    // fraction is dropped.
+    reps: truncate(number('reps', UNSIGNED_DECIMAL)),
     rir: number('rir', DECIMAL),
     durationSeconds: number('duration', DECIMAL),
     distanceShortMeters: number('distanceShort', DECIMAL),
